@@ -4,7 +4,381 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Whack-a-Girl Game</title>
-    <link rel="stylesheet" href="style.css">
+    <style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    background: linear-gradient(135deg, #ff99d6 0%, #ffb3e6 50%, #e6b3ff 100%);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.game-container {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 0 15px 35px rgba(255, 102, 204, 0.3);
+    max-width: 600px;
+    width: 100%;
+    text-align: center;
+    border: 3px solid #ff66cc;
+}
+
+.game-header {
+    margin-bottom: 30px;
+}
+
+.game-header h1 {
+    color: #cc0066;
+    font-size: 2.5em;
+    margin-bottom: 20px;
+    text-shadow: 2px 2px 4px rgba(255, 102, 204, 0.3);
+}
+
+.game-info {
+    display: flex;
+    justify-content: space-around;
+    background: linear-gradient(45deg, #ffb3e6, #ff99d6);
+    padding: 15px;
+    border-radius: 15px;
+    border: 2px solid #ff66cc;
+}
+
+.score-display, .timer-display {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.label {
+    font-size: 1.1em;
+    color: #cc0066;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+#score, #timer {
+    font-size: 2em;
+    color: #ffffff;
+    font-weight: bold;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.game-board {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+    margin: 30px 0;
+    padding: 20px;
+    background: linear-gradient(45deg, #ffe6f7, #ffccf2);
+    border-radius: 15px;
+    border: 2px solid #ff66cc;
+}
+
+.hole {
+    width: 100px;
+    height: 100px;
+    background: radial-gradient(circle, #cc0066, #990033);
+    border-radius: 50%;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    box-shadow: inset 0 5px 10px rgba(0, 0, 0, 0.3);
+    transition: transform 0.1s ease;
+}
+
+.hole:hover {
+    transform: scale(1.05);
+}
+
+.hole:active {
+    transform: scale(0.95);
+}
+
+.character {
+    position: absolute;
+    bottom: -70px;
+    left: 50%;
+    transform: translateX(-50%);
+    transition: bottom 0.3s ease;
+    cursor: pointer;
+}
+
+.character.show {
+    bottom: 10px;
+}
+
+.special-character {
+    display: none;
+}
+
+.character.special svg:first-child {
+    display: none;
+}
+
+.character.special .special-character {
+    display: block;
+}
+
+.character:hover svg {
+    transform: scale(1.1);
+}
+
+.character svg {
+    transition: transform 0.2s ease;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+}
+
+.character.hit {
+    animation: hit 0.3s ease;
+}
+
+@keyframes hit {
+    0% { transform: translateX(-50%) scale(1); }
+    50% { transform: translateX(-50%) scale(1.2); }
+    100% { transform: translateX(-50%) scale(0); }
+}
+
+.game-controls {
+    margin-top: 20px;
+}
+
+.game-button {
+    background: linear-gradient(45deg, #ff66cc, #ff99d6);
+    color: white;
+    border: none;
+    padding: 15px 30px;
+    font-size: 1.2em;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 5px 15px rgba(255, 102, 204, 0.3);
+    font-weight: bold;
+    margin: 0 10px;
+}
+
+.game-button:hover {
+    background: linear-gradient(45deg, #ff99d6, #ffb3e6);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(255, 102, 204, 0.4);
+}
+
+.game-button:active {
+    transform: translateY(0);
+}
+
+.game-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.game-over {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 102, 204, 0.9);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.game-over-content {
+    background: white;
+    padding: 40px;
+    border-radius: 20px;
+    text-align: center;
+    border: 3px solid #ff66cc;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+}
+
+.game-over h2 {
+    color: #cc0066;
+    font-size: 2.5em;
+    margin-bottom: 20px;
+}
+
+.final-score {
+    font-size: 1.5em;
+    color: #cc0066;
+    margin-bottom: 15px;
+}
+
+.final-score span:last-child {
+    font-weight: bold;
+    color: #ff66cc;
+}
+
+.score-message {
+    font-size: 1.2em;
+    color: #ff66cc;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+.hidden {
+    display: none !important;
+}
+
+@media (max-width: 768px) {
+    .game-container {
+        padding: 20px;
+        margin: 10px;
+    }
+    
+    .game-header h1 {
+        font-size: 2em;
+    }
+    
+    .game-board {
+        gap: 10px;
+        padding: 15px;
+    }
+    
+    .hole {
+        width: 80px;
+        height: 80px;
+    }
+    
+    .character svg {
+        width: 50px;
+        height: 50px;
+    }
+    
+    .game-info {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .game-button {
+        padding: 12px 25px;
+        font-size: 1em;
+    }
+}
+
+@media (max-width: 480px) {
+    .game-header h1 {
+        font-size: 1.5em;
+    }
+    
+    .hole {
+        width: 70px;
+        height: 70px;
+    }
+    
+    .character svg {
+        width: 40px;
+        height: 40px;
+    }
+    
+    .game-board {
+        gap: 8px;
+        padding: 10px;
+    }
+}
+
+@keyframes scoreIncrease {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.2); color: #ff66cc; }
+    100% { transform: scale(1); }
+}
+
+.score-animate {
+    animation: scoreIncrease 0.3s ease;
+}
+
+.timer-warning {
+    color: #ff3366 !important;
+    animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.6; }
+    100% { opacity: 1; }
+}
+
+.combo-effect {
+    position: absolute;
+    top: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(45deg, #ff6600, #ff9900);
+    color: white;
+    padding: 5px 10px;
+    border-radius: 15px;
+    font-size: 12px;
+    font-weight: bold;
+    z-index: 100;
+    animation: comboFloat 1s ease-out;
+    pointer-events: none;
+}
+
+@keyframes comboFloat {
+    0% { 
+        opacity: 1; 
+        transform: translateX(-50%) translateY(0px); 
+    }
+    100% { 
+        opacity: 0; 
+        transform: translateX(-50%) translateY(-30px); 
+    }
+}
+
+.special-effect {
+    position: absolute;
+    top: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(45deg, #ffcc00, #ff9900);
+    color: white;
+    padding: 5px 10px;
+    border-radius: 15px;
+    font-size: 12px;
+    font-weight: bold;
+    z-index: 100;
+    animation: specialFloat 1s ease-out;
+    pointer-events: none;
+}
+
+@keyframes specialFloat {
+    0% { 
+        opacity: 1; 
+        transform: translateX(-50%) translateY(0px) scale(1); 
+    }
+    50% { 
+        transform: translateX(-50%) translateY(-15px) scale(1.1); 
+    }
+    100% { 
+        opacity: 0; 
+        transform: translateX(-50%) translateY(-30px) scale(0.8); 
+    }
+}
+
+.character.special {
+    animation: specialGlow 0.5s ease-in-out infinite alternate;
+}
+
+@keyframes specialGlow {
+    0% { 
+        filter: drop-shadow(0 0 5px #ff9900); 
+    }
+    100% { 
+        filter: drop-shadow(0 0 15px #ffcc00); 
+    }
+}
+    </style>
 </head>
 <body>
     <div class="game-container">
@@ -229,6 +603,303 @@
             </div>
         </div>
     </div>
-    <script src="script.js"></script>
+    <script>
+let gameState = {
+    score: 0,
+    timeLeft: 30,
+    isGameActive: false,
+    gameTimer: null,
+    characterTimer: null,
+    activeCharacters: [], 
+    gameSpeed: 800, 
+    maxActiveCharacters: 2,
+    combo: 0,
+    lastHitTime: 0
+};
+
+const scoreElement = document.getElementById('score');
+const timerElement = document.getElementById('timer');
+const startButton = document.getElementById('startButton');
+const restartButton = document.getElementById('restartButton');
+const playAgainButton = document.getElementById('playAgainButton');
+const gameOverScreen = document.getElementById('gameOverScreen');
+const finalScoreElement = document.getElementById('finalScore');
+const scoreMessageElement = document.getElementById('scoreMessage');
+const holes = document.querySelectorAll('.hole');
+const characters = document.querySelectorAll('.character');
+
+document.addEventListener('DOMContentLoaded', function() {
+    setupGame();
+});
+
+function setupGame() {
+    startButton.addEventListener('click', startGame);
+
+    restartButton.addEventListener('click', resetGame);
+
+    playAgainButton.addEventListener('click', resetGame);
+
+    characters.forEach((character, index) => {
+        character.addEventListener('click', function() {
+            hitCharacter(index);
+        });
+    });
+    
+    characters.forEach((character, index) => {
+        character.addEventListener('touchstart', function(e) {
+            e.preventDefault(); 
+            hitCharacter(index);
+        });
+    });
+}
+
+function startGame() {
+    gameState.score = 0;
+    gameState.timeLeft = 30;
+    gameState.isGameActive = true;
+    gameState.gameSpeed = 800;
+    gameState.activeCharacters = [];
+    gameState.combo = 0;
+    gameState.lastHitTime = 0;
+
+    updateScore();
+    updateTimer();
+    startButton.classList.add('hidden');
+    restartButton.classList.remove('hidden');
+
+    startGameTimer();
+    startCharacterTimer();
+    console.log('Game started!');
+}
+
+function startGameTimer() {
+    gameState.gameTimer = setInterval(function() {
+        gameState.timeLeft--;
+        updateTimer();
+
+        if (gameState.timeLeft <= 10) {
+            timerElement.classList.add('timer-warning');
+        }
+        if (gameState.timeLeft <= 0) {
+            endGame();
+        }
+    }, 1000);
+}
+
+function startCharacterTimer() {
+    gameState.characterTimer = setInterval(function() {
+        if (gameState.isGameActive) {
+            showRandomCharacters();
+            
+            if (gameState.score > 0 && gameState.score % 8 === 0) {
+                gameState.gameSpeed = Math.max(400, gameState.gameSpeed - 80);
+                gameState.maxActiveCharacters = Math.min(3, gameState.maxActiveCharacters + 1);
+                clearInterval(gameState.characterTimer);
+                startCharacterTimer();
+            }
+        }
+    }, gameState.gameSpeed);
+}
+
+function showRandomCharacters() {
+    const numToShow = Math.floor(Math.random() * gameState.maxActiveCharacters) + 1;
+    const availableHoles = [];
+    for (let i = 0; i < 9; i++) {
+        if (!gameState.activeCharacters.includes(i)) {
+            availableHoles.push(i);
+        }
+    }
+    for (let i = 0; i < numToShow && availableHoles.length > 0; i++) {
+        const randomIndex = Math.floor(Math.random() * availableHoles.length);
+        const holeIndex = availableHoles[randomIndex];
+        availableHoles.splice(randomIndex, 1);
+        
+        const character = characters[holeIndex];
+        if (Math.random() < 0.3) {
+            character.classList.add('special');
+        }
+        character.classList.add('show');
+        gameState.activeCharacters.push(holeIndex);
+        const hideTime = Math.random() * 1500 + 1000;
+        setTimeout(function() {
+            if (gameState.activeCharacters.includes(holeIndex)) {
+                hideCharacter(holeIndex);
+            }
+        }, hideTime);
+    }
+}
+
+function hideCharacter(holeIndex) {
+    const character = characters[holeIndex];
+    character.classList.remove('show', 'special');
+    const index = gameState.activeCharacters.indexOf(holeIndex);
+    if (index > -1) {
+        gameState.activeCharacters.splice(index, 1);
+    }
+}
+
+function hitCharacter(holeIndex) {
+    if (!gameState.isGameActive) return;
+    
+    const character = characters[holeIndex];
+    if (!character.classList.contains('show')) return;
+    
+    character.classList.add('hit');
+    setTimeout(function() {
+        character.classList.remove('hit');
+    }, 300);
+    
+    const currentTime = Date.now();
+    let points = 1;
+    if (currentTime - gameState.lastHitTime < 1000) {
+        gameState.combo++;
+        points += gameState.combo;
+        showComboEffect(holeIndex);
+    } else {
+        gameState.combo = 0;
+    }
+    if (character.classList.contains('special')) {
+        points += 2;
+        showSpecialEffect(holeIndex);
+    }
+    
+    gameState.lastHitTime = currentTime;
+    hideCharacter(holeIndex);
+    gameState.score += points;
+    updateScore();
+    scoreElement.classList.add('score-animate');
+    setTimeout(function() {
+        scoreElement.classList.remove('score-animate');
+    }, 300);
+    
+    console.log(`Hit! Score: ${gameState.score}, Points: ${points}, Combo: ${gameState.combo}`);
+}
+
+function updateScore() {
+    scoreElement.textContent = gameState.score;
+}
+function updateTimer() {
+    timerElement.textContent = gameState.timeLeft;
+}
+function endGame() {
+    gameState.isGameActive = false;
+    
+    clearInterval(gameState.gameTimer);
+    clearInterval(gameState.characterTimer);
+    characters.forEach(character => {
+        character.classList.remove('show', 'special');
+    });
+    timerElement.classList.remove('timer-warning');
+    showGameOverScreen();
+    
+    console.log('Game ended! Final score:', gameState.score);
+}
+
+function showGameOverScreen() {
+    finalScoreElement.textContent = gameState.score;
+    let message = '';
+    if (gameState.score >= 20) {
+        message = '\ud83c\udf1f Amazing! You\'re a whack-a-girl champion! \ud83c\udf1f';
+    } else if (gameState.score >= 15) {
+        message = '\ud83d\udc96 Great job! You\'ve got some serious skills! \ud83d\udc96';
+    } else if (gameState.score >= 10) {
+        message = '\ud83d\ude0a Good work! Keep practicing! \ud83d\ude0a';
+    } else if (gameState.score >= 5) {
+        message = '\ud83c\udf38 Not bad! You\'re getting the hang of it! \ud83c\udf38';
+    } else {
+        message = '\ud83d\udc95 Keep trying! Practice makes perfect! \ud83d\udc95';
+    }
+    
+    scoreMessageElement.textContent = message;
+    gameOverScreen.classList.remove('hidden');
+}
+
+function resetGame() {
+    gameOverScreen.classList.add('hidden');
+    startButton.classList.remove('hidden');
+    restartButton.classList.add('hidden');
+    
+    gameState.score = 0;
+    gameState.timeLeft = 30;
+    gameState.isGameActive = false;
+    gameState.activeCharacters = [];
+    gameState.gameSpeed = 800;
+    gameState.maxActiveCharacters = 2;
+    gameState.combo = 0;
+    gameState.lastHitTime = 0;
+    
+    updateScore();
+    updateTimer();
+    
+    timerElement.classList.remove('timer-warning');
+    
+    if (gameState.gameTimer) {
+        clearInterval(gameState.gameTimer);
+        gameState.gameTimer = null;
+    }
+    
+    if (gameState.characterTimer) {
+        clearInterval(gameState.characterTimer);
+        gameState.characterTimer = null;
+    }
+    
+    characters.forEach(character => {
+        character.classList.remove('show', 'hit', 'special');
+    });
+    
+    console.log('Game reset!');
+}
+
+function showComboEffect(holeIndex) {
+    const hole = holes[holeIndex];
+    const comboText = document.createElement('div');
+    comboText.className = 'combo-effect';
+    comboText.textContent = `COMBO x${gameState.combo + 1}!`;
+    hole.appendChild(comboText);
+    
+    setTimeout(() => {
+        comboText.remove();
+    }, 1000);
+}
+
+function showSpecialEffect(holeIndex) {
+    const hole = holes[holeIndex];
+    const specialText = document.createElement('div');
+    specialText.className = 'special-effect';
+    specialText.textContent = 'SPECIAL +3!';
+    hole.appendChild(specialText);
+    
+    setTimeout(() => {
+        specialText.remove();
+    }, 1000);
+}
+
+document.addEventListener('visibilitychange', function() {
+    if (document.hidden && gameState.isGameActive) {
+        clearInterval(gameState.gameTimer);
+        clearInterval(gameState.characterTimer);
+    } else if (!document.hidden && gameState.isGameActive) {
+        startGameTimer();
+        startCharacterTimer();
+    }
+});
+
+document.addEventListener('contextmenu', function(e) {
+    if (e.target.closest('.game-container')) {
+        e.preventDefault();
+    }
+});
+
+document.addEventListener('keydown', function(e) {
+    if (e.code === 'Space') {
+        e.preventDefault();
+        if (!gameState.isGameActive && !startButton.classList.contains('hidden')) {
+            startGame();
+        } else if (!gameState.isGameActive && !restartButton.classList.contains('hidden')) {
+            resetGame();
+        }
+    }
+});
+    </script>
 </body>
 </html>
